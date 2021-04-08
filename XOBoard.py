@@ -1,12 +1,15 @@
 from enum import Enum
 
+
 class Status(Enum):
     X = 1
-    Y = 2
+    O = 2
     NONE = 3
     DRAW = 4
 
+
 BSIZE = 3
+
 
 class XOBoard:
     def __init__(self):
@@ -15,16 +18,11 @@ class XOBoard:
         self.gameMatrix = [[' ' for x in range(BSIZE)] for y in range(BSIZE)]
         self.fullCells = 0
 
-
     def Display(self):
         board = ""
         for i in range(BSIZE):
-            if i == 0 or i == BSIZE - 1:
-                for j in range(BSIZE):
-                    board += "     "
-                    if j < BSIZE - 1:
-                        board += "|"
-                board += "\n"
+            if i == 0:
+                board += self.RowOfEmptyColumns()
 
             for k in range(BSIZE):
                 board += "  {}  ".format(self.gameMatrix[i][k])
@@ -38,6 +36,9 @@ class XOBoard:
                     if m < BSIZE - 1:
                         board += "|"
                 board += "\n"
+
+            if i == BSIZE - 1:
+                board += self.RowOfEmptyColumns()
         print(board)
 
     def Put(self, character):
@@ -73,7 +74,14 @@ class XOBoard:
                 return Status.DRAW
         return retStatus
 
-
+    def RowOfEmptyColumns(self):
+        row = ""
+        for j in range(BSIZE):
+            row += "     "
+            if j < BSIZE - 1:
+                row += "|"
+        row += "\n"
+        return row
 
     def AskForInput(self, character):
         print("Put {} on the board".format(character))
@@ -81,36 +89,36 @@ class XOBoard:
         return int(x), int(y)
 
     def CheckColumnsAndRows(self):
-        for i in range(BSIZE - 1):
-            horizontal = self.gameMatrix[0][i]
+        for i in range(BSIZE):
+            horizontal = self.gameMatrix[i][0]
             horizontalCnt = 0 if horizontal == ' ' else 1
-            vertical = self.gameMatrix[i][0]
+            vertical = self.gameMatrix[0][i]
             verticalCnt = 0 if vertical == ' ' else 1
-            for j in range(1, BSIZE - 1):
+            for j in range(1, BSIZE):
                 if horizontal != ' ' and self.gameMatrix[i][j] == horizontal:
                     horizontalCnt += 1
                 if vertical != ' ' and self.gameMatrix[j][i] == vertical:
                     verticalCnt += 1
             if horizontalCnt == BSIZE:
-                return Status.X if horizontal == 'X' else Status.Y
-            elif vertical == BSIZE:
-                return Status.X if vertical == 'X' else Status.Y
-            else:
-                return Status.NONE
+                return Status.X if horizontal == 'X' else Status.O
+            elif verticalCnt == BSIZE:
+                return Status.X if vertical == 'X' else Status.O
+        else:
+            return Status.NONE
 
     def CheckDiagonals(self):
         lToR = self.gameMatrix[0][0]
         lToRCnt = 0 if lToR == ' ' else 1
-        rToL = self.gameMatrix[BSIZE - 1][BSIZE - 1]
+        rToL = self.gameMatrix[0][BSIZE - 1]
         rToLCnt = 0 if rToL == ' ' else 1
         for i in range(1, BSIZE):
             if lToR != ' ' and self.gameMatrix[i][i] == lToR:
                 lToRCnt += 1
-            if rToL != ' ' and self.gameMatrix[BSIZE - 1 - i][BSIZE - 1 - i] == rToL:
+            if rToL != ' ' and self.gameMatrix[i][BSIZE - 1 - i] == rToL:
                 rToLCnt += 1
         if lToRCnt == BSIZE:
-            return Status.X if lToR == 'X' else Status.Y
+            return Status.X if lToR == 'X' else Status.O
         elif rToLCnt == BSIZE:
-            return Status.X if rToL == 'X' else Status.Y
+            return Status.X if rToL == 'X' else Status.O
         else:
             return Status.NONE
